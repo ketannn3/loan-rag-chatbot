@@ -10,7 +10,7 @@ docs = pd.read_csv("docs.csv", header=None)[0].tolist()
 model = SentenceTransformer('all-MiniLM-L6-v2')
 doc_embeddings = model.encode(docs)
 
-def get_top_k_docs(query, k=3):
+def get_top_k_docs(query, k=8):
     query_emb = model.encode([query])
     similarities = cosine_similarity(query_emb, doc_embeddings)[0]
     top_k_idx = np.argsort(similarities)[-k:][::-1]
