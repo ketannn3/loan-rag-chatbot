@@ -1,5 +1,5 @@
 import streamlit as st
-from datasets import load_dataset
+
 from transformers import pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
