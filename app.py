@@ -1,11 +1,15 @@
 import streamlit as st
 from rag_utils import get_top_k_docs
-from openai import OpenAI
+from transformers import pipeline
 
-# Set up OpenAI client
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# Load QA model (runs on CPU)
+@st.cache_resource
+def load_model():
+    return pipeline("question-answering", model="distilbert-base-uncased-distilled-squad")
 
-st.title("🤖 Loan Approval RAG Chatbot")
+qa_pipeline = load_model()
+
+st.title("🧠 Loan Approval RAG Chatbot (Free Hugging Face Model)")
 st.write("Ask a question about loan approvals based on real data.")
 
 query = st.text_input("Enter your question:")
@@ -13,15 +17,9 @@ query = st.text_input("Enter your question:")
 if query:
     with st.spinner("Thinking..."):
         context = "\n".join(get_top_k_docs(query))
-        prompt = f"Context:\n{context}\n\nQuestion: {query}\nAnswer:"
-
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant for loan-related data."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-
-        answer = response.choices[0].message.content
+        result = qa_pipeline({
+            "context": context,
+            "question": query
+        })
+        answer = result["answer"]
         st.success(answer)
