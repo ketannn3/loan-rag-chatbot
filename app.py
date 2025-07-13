@@ -10,7 +10,8 @@ import pandas as pd
 def load_resources():
     docs = pd.read_csv("docs.csv")
     retriever = TfidfVectorizer()
-    docs['combined'] = docs.apply(lambda row: f"Gender: {row['Gender']}, Married: {row['Married']}, Education: {row['Education']}, Income: {row['ApplicantIncome']}, Loan Amount: {row['LoanAmount']}", axis=1)
+  docs['combined'] = docs.astype(str).agg(' '.join, axis=1)
+
     tfidf_matrix = retriever.fit_transform(docs['combined'])
     qa_model = pipeline("question-answering", model="deepset/roberta-base-squad2")
     return docs, retriever, tfidf_matrix, qa_model
